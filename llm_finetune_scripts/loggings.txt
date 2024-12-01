@@ -1,0 +1,87 @@
+INFO:torchtune.utils._logging:Running FullFinetuneRecipeSingleDevice with resolved config:
+
+batch_size: 2
+checkpointer:
+  _component_: torchtune.training.FullModelHFCheckpointer
+  checkpoint_dir: checkpoints/Llama3.1-8B-Instruct-huggingface
+  checkpoint_files:
+  - model-00001-of-00004.safetensors
+  - model-00002-of-00004.safetensors
+  - model-00003-of-00004.safetensors
+  - model-00004-of-00004.safetensors
+  model_type: LLAMA3
+  output_dir: ./checkpoints/Llama-3.1-8B-Instruct-FullFinetune-fig_gen/
+  recipe_checkpoint: /projectnb/ece601/24FallA2Group16/checkpoints/Llama-3.1-8B-Instruct-FullFinetune/recipe_state.pt
+compile: true
+dataset:
+  _component_: torchtune.datasets.instruct_dataset
+  data_files: ./instr_alpaca_v2.json
+  source: json
+  train_on_input: true
+device: cuda
+dtype: bf16
+enable_activation_checkpointing: true
+enable_activation_offloading: false
+epochs: 3
+gradient_accumulation_steps: 1
+log_every_n_steps: 1
+log_peak_memory_stats: true
+loss:
+  _component_: torchtune.modules.loss.CEWithChunkedOutputLoss
+max_steps_per_epoch: null
+metric_logger:
+  _component_: torchtune.training.metric_logging.DiskLogger
+  log_dir: /tmp/full-llama3.1-finetune
+model:
+  _component_: torchtune.models.llama3_1.llama3_1_8b
+optimizer:
+  _component_: bitsandbytes.optim.PagedAdamW8bit
+  lr: 1.0e-05
+optimizer_in_bwd: false
+output_dir: /tmp/full-llama3.1-finetune
+profiler:
+  _component_: torchtune.training.setup_torch_profiler
+  active_steps: 2
+  cpu: true
+  cuda: true
+  enabled: false
+  num_cycles: 1
+  output_dir: /tmp/full-llama3.1-finetune/profiling_outputs
+  profile_memory: false
+  record_shapes: true
+  wait_steps: 5
+  warmup_steps: 3
+  with_flops: false
+  with_stack: false
+resume_from_checkpoint: false
+seed: null
+shuffle: true
+tokenizer:
+  _component_: torchtune.models.llama3.llama3_tokenizer
+  path: checkpoints/Llama3.1-8B-Instruct/tokenizer.model
+
+INFO:torchtune.utils._logging:Hint: enable_activation_checkpointing is True, but enable_activation_offloading isn't. Enabling activation offloading should reduce memory further.
+DEBUG:torchtune.utils._logging:Setting manual seed to local seed 133672954. Local seed is seed + rank = 133672954 + 0
+Writing logs to /tmp/full-llama3.1-finetune/log_1732900558.txt
+INFO:torchtune.utils._logging:Compiling model layers with torch.compile...
+INFO:torchtune.utils._logging:Model is initialized with precision torch.bfloat16.
+INFO:torchtune.utils._logging:Memory stats after model init:
+        GPU peak memory allocation: 15.02 GiB
+        GPU peak memory reserved: 15.14 GiB
+        GPU peak memory active: 15.02 GiB
+INFO:torchtune.utils._logging:Tokenizer is initialized from file.
+INFO:torchtune.utils._logging:Optimizer is initialized.
+INFO:torchtune.utils._logging:Compiling loss with torch.compile...
+INFO:torchtune.utils._logging:Loss is initialized.
+INFO:torchtune.utils._logging:Dataset and Sampler are initialized.
+INFO:torchtune.utils._logging:No learning rate scheduler configured. Using constant learning rate.
+WARNING:torchtune.utils._logging: Profiling disabled.
+INFO:torchtune.utils._logging: Profiler config after instantiation: {'enabled': False}
+INFO:torchtune.utils._logging:NOTE: torch.compile is enabled and model is compiled in first forward. Expect a relatively slow first iteration.
+1|7050|Loss: 0.45993754267692566: 100%|█████████████████| 7050/7050 [3:24:01<00:00,  1.74s/it]INFO:torchtune.utils._logging:Model checkpoint of size 4.98 GB saved to checkpoints/Llama-3.1-8B-Instruct-FullFinetune-fig_gen/hf_model_0001_0.pt
+INFO:torchtune.utils._logging:Model checkpoint of size 5.00 GB saved to checkpoints/Llama-3.1-8B-Instruct-FullFinetune-fig_gen/hf_model_0002_0.pt
+INFO:torchtune.utils._logging:Model checkpoint of size 4.92 GB saved to checkpoints/Llama-3.1-8B-Instruct-FullFinetune-fig_gen/hf_model_0003_0.pt
+INFO:torchtune.utils._logging:Model checkpoint of size 1.17 GB saved to checkpoints/Llama-3.1-8B-Instruct-FullFinetune-fig_gen/hf_model_0004_0.pt
+INFO:torchtune.utils._logging:Recipe checkpoint of size 16.31 GB saved to checkpoints/Llama-3.1-8B-Instruct-FullFinetune-fig_gen/recipe_state.pt
+1|7050|Loss: 0.4599375426769256: 100%|█████████████████| 7050/7050 [3:24:34<00:00,  1.74s/it]
+1|3525|Loss: 0.4822102069854736: 100%|█████████████████| 3525/3525 [3:21:08<00:00,  3.43s/it]
